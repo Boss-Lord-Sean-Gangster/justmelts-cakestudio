@@ -1,0 +1,144 @@
+.section {
+  --bg: #faf5ee;
+  --blue: #2c3a9b;
+  --text: #1c1c28;
+
+  background: var(--bg);
+  padding: 5.5rem 0 5rem;
+  width: 100%;
+}
+
+.inner {
+  max-width: 1346px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.eyebrow {
+  margin: 0 0 1rem;
+  color: var(--blue);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.headRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 2.6rem;
+}
+
+.title {
+  margin: 0;
+  color: var(--blue);
+  font-weight: 500;
+  font-size: clamp(2.3rem, 4.8vw, 4rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+
+.explore {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-shrink: 0;
+  padding: 0 0.5rem 0.75rem;
+  color: var(--blue);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(44, 58, 155, 0.45);
+  transition: border-color 0.2s ease;
+}
+
+.explore svg { transition: transform 0.2s ease; }
+.explore:hover { border-color: var(--blue); }
+.explore:hover svg { transform: translateX(3px); }
+
+/* ---- Tiles ---- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 1.1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.05rem;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.tile {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 1.75rem;
+  transition: transform 0.25s ease;
+}
+
+.card:hover .tile { transform: translateY(-4px); }
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 28%;
+  color: var(--blue);
+}
+
+.icon svg {
+  width: 100%;
+  height: auto;
+}
+
+.leaf {
+  position: absolute;
+  top: 11%;
+  right: 12%;
+  width: 11%;
+  height: auto;
+}
+
+.label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.card:focus-visible,
+.explore:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 4px;
+  border-radius: 1.5rem;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 960px) {
+  .grid { grid-template-columns: repeat(4, 1fr); row-gap: 1.6rem; }
+}
+
+@media (max-width: 720px) {
+  .section { padding: 3.5rem 0 3rem; }
+  .headRow { flex-direction: column; align-items: flex-start; gap: 1rem; margin-bottom: 1.8rem; }
+  .explore { padding-bottom: 0.5rem; }
+}
+
+@media (max-width: 480px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+  .icon { width: 24%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile, .explore svg { transition: none; }
+  .card:hover .tile { transform: none; }
+}

@@ -1,0 +1,238 @@
+.section {
+  --bg: #f8f8f6;
+  --blue: #2c3a9b;
+  --muted: #6c7089;
+  --line: #e6e6ea;
+  --cream: #fbf6ef;
+  --pill: #eceefa;
+
+  background: var(--bg);
+  padding: 5.5rem 0 3rem;
+  width: 100%;
+}
+
+.inner {
+  max-width: 1346px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* ---------- Top: story card + features ---------- */
+.top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.72fr);
+  align-items: center;
+  gap: 3.2rem;
+}
+
+.card {
+  display: grid;
+  grid-template-columns: 256px minmax(0, 1fr);
+  align-items: center;
+  gap: 2.4rem;
+  padding: 1.5rem 2.2rem 1.5rem 1.5rem;
+  border-radius: 1.75rem;
+  background: var(--cream);
+}
+
+.photo {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 256 / 401;
+  overflow: hidden;
+  border-radius: 999px 999px 1.2rem 1.2rem;
+  background: #e8e0d4; /* shows if the image is missing */
+}
+
+.img {
+  object-fit: cover;
+}
+
+.eyebrow {
+  margin: 0 0 1.2rem;
+  color: var(--blue);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  max-width: 7.5em;
+  color: var(--blue);
+  font-weight: 500;
+  font-size: clamp(2.2rem, 3.6vw, 3.1rem);
+  line-height: 1.07;
+  letter-spacing: -0.005em;
+}
+
+.body {
+  margin: 1.4rem 0 0;
+  max-width: 28rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+.signature {
+  margin: 0.6rem 0 0;
+  color: var(--blue);
+  font-style: italic;
+  font-size: 1.15rem;
+}
+
+/* ---------- Features ---------- */
+.features {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.1rem;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.feature:first-child { padding-top: 0; }
+.feature:last-child { border-bottom: 0; padding-bottom: 0; }
+
+.iconWrap {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--pill);
+  color: var(--blue);
+}
+
+.iconWrap svg { width: 20px; height: 20px; }
+
+.featureText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding-top: 0.1rem;
+}
+
+.featureTitle {
+  color: var(--blue);
+  font-size: 1.02rem;
+  font-weight: 400;
+}
+
+.featureDesc {
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+/* ---------- SEO read-more ---------- */
+.seo {
+  margin-top: 5.5rem;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.seoRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 2rem 0 1.9rem;
+}
+
+.seoTitle {
+  margin: 0;
+  color: var(--blue);
+  font-weight: 500;
+  font-size: 1.65rem;
+  line-height: 1.15;
+}
+
+.seoSummary {
+  margin: 0.6rem 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.more {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-shrink: 0;
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0.5rem 0.6rem;
+  color: var(--blue);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.chev { transition: transform 0.25s ease; }
+.chevOpen { transform: rotate(180deg); }
+
+.more:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* smooth expand */
+.panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease;
+}
+
+.panelOpen { grid-template-rows: 1fr; }
+
+.panelInner {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.75;
+}
+
+.panelInner p {
+  margin: 0 0 1rem;
+  max-width: 62rem;
+}
+
+.panelOpen .panelInner { padding-bottom: 0.6rem; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1100px) {
+  .card { grid-template-columns: 210px minmax(0, 1fr); gap: 1.8rem; }
+}
+
+@media (max-width: 900px) {
+  .section { padding: 3.5rem 0 2rem; }
+  .top { grid-template-columns: 1fr; gap: 2.4rem; }
+  .features { padding: 0 0.3rem; }
+  .seo { margin-top: 3.5rem; }
+}
+
+@media (max-width: 620px) {
+  .card {
+    grid-template-columns: 1fr;
+    padding: 1.2rem 1.2rem 1.8rem;
+    gap: 1.6rem;
+  }
+  .photo { max-width: 260px; margin: 0 auto; }
+  .seoRow { flex-direction: column; align-items: flex-start; gap: 0.8rem; }
+  .seoTitle { font-size: 1.4rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chev, .panel { transition: none; }
+}

@@ -1,0 +1,214 @@
+.section {
+  --bg: #f8f8f6;
+  --navy: #EFF0FA;
+  --green: #5cb75c;
+
+  background: var(--bg);
+  padding: 3rem 0;
+  width: 100%;
+}
+
+.inner {
+  max-width: 1346px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.banner {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: 560px;
+  overflow: hidden;
+  border-radius: 2rem;
+  background: var(--navy);
+  color: #2d3a94;
+  isolation: isolate;
+}
+
+/* faint outline arc behind the photo */
+.outline {
+  position: absolute;
+  top: -18%;
+  right: 8%;
+  width: 52%;
+  height: 136%;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 50%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ---- Left content ---- */
+.content {
+  position: relative;
+  z-index: 1;
+  width: 62%;
+  padding: 4.2rem 0 3.4rem 4.6%;
+}
+
+.eyebrow {
+  margin: 0 0 1.6rem;
+  color: #2d3a94;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  max-width: 8.6em;
+  color: #2d3a94;
+  font-weight: 500;
+  font-size: clamp(2.6rem, 4.6vw, 4.2rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+
+.desc {
+  margin: 1.6rem 0 0;
+  max-width: 31rem;
+  color: #2d3a94;
+  font-size: 1.08rem;
+  line-height: 1.6;
+}
+
+.ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin-top: 2.2rem;
+}
+
+.primary,
+.secondary {
+  display: inline-grid;
+  place-items: center;
+  padding: 1rem 1.9rem;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.primary { background: var(--green); color: #2d3a94; }
+.secondary { background: #2d3a94; color: var(--navy); }
+
+.primary:hover,
+.secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* ---- Package cards ---- */
+.packages {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 205px));
+  gap: 0.75rem;
+  margin: 2.4rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pkg {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 127px;
+  padding: 1.1rem 1.3rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 1.1rem;
+  background: rgba(255, 255, 255, 0.62);
+  color: #2d3a94;
+  text-decoration: none;
+  backdrop-filter: blur(6px);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.pkg:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.num {
+  color: #2d3a94;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.pkgName {
+  margin-top: 0.9rem;
+  font-size: 0.95rem;
+  font-weight: 400;
+}
+
+.pkgPrice {
+  margin-top: 0.45rem;
+  color: #2d3a94;
+  font-size: 0.8rem;
+}
+
+.arrow {
+  position: absolute;
+  right: 1.2rem;
+  bottom: 1.1rem;
+  transition: transform 0.2s ease;
+}
+
+.pkg:hover .arrow { transform: translateX(3px); }
+
+/* ---- Photo with curved left edge ---- */
+.media {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 44%;
+  border-radius: 34% 0 0 34% / 50% 0 0 50%;
+  overflow: hidden;
+  z-index: 0;
+  background: #4552ac; /* shows if the image is missing */
+}
+
+.img {
+  object-fit: cover;
+}
+
+.primary:focus-visible,
+.secondary:focus-visible,
+.pkg:focus-visible {
+  outline: 2px solid #2d3a94;
+  outline-offset: 3px;
+}
+
+/* ---- Tablet ---- */
+@media (max-width: 1024px) {
+  .content { width: 66%; padding-left: 4rem; }
+  .packages { grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 640px; }
+}
+
+/* ---- Mobile: photo on top with curved bottom ---- */
+@media (max-width: 760px) {
+  .banner { display: flex; flex-direction: column; min-height: 0; border-radius: 1.5rem; }
+  .outline { display: none; }
+
+  .media {
+    position: relative;
+    order: -1;
+    width: 100%;
+    height: 260px;
+    border-radius: 0 0 50% 50% / 0 0 18% 18%;
+  }
+
+  .content { width: 100%; padding: 2.2rem 1.5rem 2rem; }
+  .packages { grid-template-columns: 1fr; max-width: none; }
+  .pkg { min-height: 110px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .primary, .secondary, .pkg, .arrow { transition: none; }
+  .primary:hover, .secondary:hover, .pkg:hover { transform: none; }
+}

@@ -1,0 +1,130 @@
+.section {
+  --blue: #2c3a9b;
+  --muted: #6c7089;
+
+  background: #fff;
+  padding: 3rem 0 3.5rem;
+  width: 100%;
+}
+
+.inner {
+  max-width: 1346px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* ---- Header ---- */
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.6rem;
+}
+
+.profile {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  color: var(--blue);
+  text-decoration: none;
+}
+
+.icon {
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 0.15rem;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.handle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+
+.follow {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  padding: 1rem 1.75rem;
+  border: 1.5px solid var(--blue);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--blue);
+  font-size: 1.02rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.follow:hover {
+  background: var(--blue);
+  color: #fff;
+}
+
+.profile:focus-visible,
+.follow:focus-visible,
+.post:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+
+/* ---- Photo strip ---- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cell {
+  min-width: 0;
+}
+
+.post {
+  position: relative;
+  display: block;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: #ececf2; /* shows if an image is missing */
+}
+
+.img {
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.post:hover .img {
+  transform: scale(1.05);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 900px) {
+  .grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 520px) {
+  .section { padding: 2rem 0 2.5rem; }
+  .grid { grid-template-columns: repeat(2, 1fr); }
+  .follow { padding: 0.8rem 1.2rem; font-size: 0.92rem; }
+  .handle { font-size: 1.1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .img, .follow { transition: none; }
+  .post:hover .img { transform: none; }
+}

@@ -1,0 +1,122 @@
+.section {
+  --bg: #fbf6ef;
+  --blue: #2c3a9b;
+  --muted: #6c7089;
+
+  background: var(--bg);
+  padding: 6rem 0;
+  width: 100%;
+}
+
+.inner {
+  display: grid;
+  grid-template-columns: minmax(0, 0.4fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 3rem;
+  max-width: 1346px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* ---- Copy ---- */
+.eyebrow {
+  margin: 0 0 1.2rem;
+  color: var(--blue);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  max-width: 6em;
+  color: var(--blue);
+  font-weight: 500;
+  font-size: clamp(2.6rem, 4.6vw, 4.2rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+
+.desc {
+  margin: 1.8rem 0 0;
+  max-width: 28rem;
+  color: var(--muted);
+  font-size: 1.08rem;
+  line-height: 1.65;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 2.4rem;
+  padding: 1.15rem 2rem;
+  border-radius: 999px;
+  background: var(--blue);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cta svg { transition: transform 0.2s ease; }
+
+.cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(44, 58, 155, 0.25);
+}
+
+.cta:hover svg { transform: translateX(3px); }
+
+.cta:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 4px;
+}
+
+/* ---- Arch gallery ---- */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  align-items: start;
+  gap: 0.9rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.arch {
+  position: relative;
+  aspect-ratio: 232 / 393;
+  overflow: hidden;
+  /* fully round top, softly rounded bottom */
+  border-radius: 999px 999px 1.5rem 1.5rem;
+  background: #e8e0d4; /* shows if an image is missing */
+}
+
+/* 2nd and 4th arches sit lower */
+.arch:nth-child(even) {
+  margin-top: 14.6%;
+}
+
+.img {
+  object-fit: cover;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 960px) {
+  .section { padding: 4rem 0; }
+  .inner { grid-template-columns: 1fr; gap: 2.5rem; }
+  .title { max-width: 9em; }
+}
+
+@media (max-width: 560px) {
+  .gallery { gap: 0.6rem; }
+  .arch { border-radius: 999px 999px 0.9rem 0.9rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta, .cta svg { transition: none; }
+  .cta:hover, .cta:hover svg { transform: none; }
+}
