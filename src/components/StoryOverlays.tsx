@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { motion, MotionValue, useTransform } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import Image from "next/image";
+import { MOBILE_BREAKPOINT, mobileTargetPercent } from "./frameLayout";
 
 
 interface StoryOverlaysProps {
@@ -41,14 +42,17 @@ interface Callout {
    * right-middle of the card for "left" callouts, left-middle for "right" callouts.
    */
   card: Point;
-  /** % of the screen. The dot lands here, on the cake. Scrub to the frame and adjust. */
+  /**
+   * % of the screen (desktop). The dot lands here, on the cake. Scrub to the frame and adjust.
+   * On mobile this is converted automatically, so you only tune it once, on desktop.
+   */
   target: Point;
 }
 
 const CALLOUTS: Callout[] = [
   {
-    title: "Real couverture",
-    text: "Slow-melted chocolate, never compound. You can taste the difference.",
+    title: "The Best Chocolate",
+    text: "We use the best chocolate that melts in your mouth, not in your hands.",
     frame: 120,
     side: "left",
     card: { x: 27, y: 22 },
@@ -64,7 +68,7 @@ const CALLOUTS: Callout[] = [
   },
   {
     title: "Seasonal fruit",
-    text: "Real fruit and real vanilla. No essences, no shortcuts.",
+    text: "Real fruit and essences, no shortcuts.",
     frame: 170,
     side: "left",
     card: { x: 26, y: 50 },
@@ -79,7 +83,7 @@ const CALLOUTS: Callout[] = [
     target: { x: 58, y: 52 },
   },
   {
-    title: "Silky buttercream",
+    title: "Silky Cream",
     text: "Whipped light and not too sweet, so the flavours do the talking.",
     frame: 220,
     side: "left",
@@ -107,7 +111,7 @@ const asc = (...values: number[]) =>
     []
   );
 
-function useIsMobile(breakpoint = 768) {
+function useIsMobile(breakpoint = MOBILE_BREAKPOINT) {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -119,6 +123,20 @@ function useIsMobile(breakpoint = 768) {
   }, [breakpoint]);
 
   return isMobile;
+}
+
+/** Current screen size, used to place the dots on mobile */
+function useViewport() {
+  const [size, setSize] = useState({ w: 390, h: 844 });
+
+  useEffect(() => {
+    const update = () => setSize({ w: window.innerWidth, h: window.innerHeight });
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  return size;
 }
 
 /* =====================================================================
@@ -133,6 +151,7 @@ interface CalloutItemProps {
   /** Frame at which this callout fades out */
   hideAtFrame: number;
   isMobile: boolean;
+  viewport: { w: number; h: number };
 }
 
 const CalloutItem: React.FC<CalloutItemProps> = ({
@@ -142,6 +161,7 @@ const CalloutItem: React.FC<CalloutItemProps> = ({
   totalFrames,
   hideAtFrame,
   isMobile,
+  viewport,
 }) => {
   const toProgress = (frame: number) => frame / (totalFrames - 1);
 
@@ -168,8 +188,13 @@ const CalloutItem: React.FC<CalloutItemProps> = ({
   // Where the line starts: the card's edge (desktop) or the card's top-centre (mobile)
   const ax = isMobile ? 50 : item.card.x;
   const ay = isMobile ? MOBILE_CARD_TOP : item.card.y;
-  const tx = item.target.x;
-  const ty = item.target.y;
+
+  // Where the dot lands: desktop target as-is, or converted to the mobile frame layout
+  const target = isMobile
+    ? mobileTargetPercent(item.target, viewport.w, viewport.h)
+    : item.target;
+  const tx = target.x;
+  const ty = target.y;
 
   const positionClasses = isMobile
     ? "-translate-x-1/2 w-[min(86vw,340px)]"
@@ -262,6 +287,7 @@ export const StoryOverlays: React.FC<StoryOverlaysProps> = ({
   totalFrames = 300,
 }) => {
   const isMobile = useIsMobile();
+  const viewport = useViewport();
 
   // Glass blur on top of the canvas: heavy at load, gone after the first scroll
   const glassBlur = useTransform(
@@ -368,6 +394,7 @@ export const StoryOverlays: React.FC<StoryOverlaysProps> = ({
               isMobile ? CALLOUTS[i + 1]?.frame ?? EXPLODE_END_FRAME : EXPLODE_END_FRAME
             }
             isMobile={isMobile}
+            viewport={viewport}
           />
         ))}
       </div>

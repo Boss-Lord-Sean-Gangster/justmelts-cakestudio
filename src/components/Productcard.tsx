@@ -1,10 +1,27 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
-import { type Product, whatsappLink } from "../constants/catalog";
+import {
+  type Product,
+  type Size,
+  SIZES,
+  sizeLabel,
+  priceFor,
+  whatsappLink,
+} from "../constants/catalog";
 import styles from "../styles/Productspage.module.css";
 
 const inr = (n: number) => `\u20B9${n.toLocaleString("en-IN")}`;
 
 export default function ProductCard({ product }: { product: Product }) {
+  const [size, setSize] = useState<Size>(0.5);
+
+  const price = priceFor(product, product.weighted ? size : 0.5);
+  const orderText = product.weighted
+    ? `${product.name} (${sizeLabel(size)}) - ${inr(price)}`
+    : product.name;
+
   return (
     <li className={styles.card}>
       <div className={styles.media}>
@@ -16,23 +33,14 @@ export default function ProductCard({ product }: { product: Product }) {
           className={styles.img}
         />
 
-        <div className={styles.badges}>
-          {product.eggless ? (
+        {product.eggless && (
+          <div className={styles.badges}>
             <span className={styles.chip}>
               <span className={styles.dot} />
               Eggless
             </span>
-          ) : (
-            <span />
-          )}
-          <span className={styles.chip}>
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <circle cx="8" cy="8" r="6.2" />
-              <path d="M8 4.6V8l2.2 1.4" />
-            </svg>
-            {product.delivery}
-          </span>
-        </div>
+          </div>
+        )}
       </div>
 
       <div className={styles.body}>
@@ -46,17 +54,34 @@ export default function ProductCard({ product }: { product: Product }) {
           <span>({product.reviews})</span>
         </p>
 
+        {product.weighted && (
+          <div className={styles.sizes} role="radiogroup" aria-label="Cake size">
+            {SIZES.map((s) => (
+              <button
+                key={s}
+                type="button"
+                role="radio"
+                aria-checked={size === s}
+                onClick={() => setSize(s)}
+                className={`${styles.sizeBtn} ${size === s ? styles.sizeActive : ""}`}
+              >
+                {sizeLabel(s)}
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className={styles.foot}>
           <div>
-            <span className={styles.from}>From</span>
-            <span className={styles.price}>{inr(product.price)}</span>
+            {!product.weighted && <span className={styles.from}>From</span>}
+            <span className={styles.price}>{inr(price)}</span>
           </div>
           <a
-            href={whatsappLink(product.name)}
+            href={whatsappLink(orderText)}
             target="_blank"
             rel="noopener noreferrer"
             className={styles.order}
-            aria-label={`Order ${product.name} on WhatsApp`}
+            aria-label={`Order ${orderText} on WhatsApp`}
           >
             Order
           </a>

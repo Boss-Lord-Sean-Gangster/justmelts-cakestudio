@@ -1,15 +1,24 @@
 import type { ReactNode } from "react";
 import type { CatalogSection, Product } from "../constants/catalog";
 import ProductCard from "./Productcard";
+import CustomiseCard from "./CustomiseCard";
 // import { serif } from "./fonts";
 import styles from "../styles/Productspage.module.css";
 
-function Grid({ products }: { products: Product[] }) {
+function Grid({
+  products,
+  customiseTag,
+}: {
+  products: Product[];
+  /** When set, a "customise to your needs" card is added at the end of the grid */
+  customiseTag?: string;
+}) {
   return (
     <ul className={styles.grid}>
       {products.map((pr) => (
         <ProductCard key={pr.id} product={pr} />
       ))}
+      {customiseTag && <CustomiseCard tag={customiseTag} />}
     </ul>
   );
 }
@@ -60,7 +69,10 @@ export default function ProductSection({ section, after }: Props) {
         {subsections?.map((sub) => (
           <div key={sub.id} id={sub.id} className={styles.sub}>
             <h3 className={`${styles.subTitle} `}>{sub.title}</h3>
-            <Grid products={sub.products} />
+            <Grid
+              products={sub.products}
+              customiseTag={sub.customise ? sub.title : undefined}
+            />
           </div>
         ))}
       </div>

@@ -8,27 +8,52 @@
 
    Use sectionHref("bestsellers-bento") for any button or CTA, or
    productHref("brownie") to land on the section a product lives in.
+
+   IMAGES: every product photo is /public/images/<folder>/<product id>.jpg
+   See IMAGES.md for the full folder layout and every file name.
    ===================================================================== */
 
-/** Your WhatsApp number with country code, no "+" (the "Order" buttons open a chat). */
-export const WHATSAPP_NUMBER = "9217055099";
+/** Your WhatsApp number with country code (91 for India), no "+" and no spaces. */
+export const WHATSAPP_NUMBER = "919217055099";
 
 export const PRODUCTS_PATH = "/products";
+
+/* ---------- Pricing (breakdown is never shown to customers) ---------- */
+
+/** Sizes offered on weighted cakes, in kg. */
+export const SIZES = [0.5, 1, 2, 3] as const;
+export type Size = (typeof SIZES)[number];
+
+/** Price of a plain half-kg cake. 1 kg = 940, 2 kg = 1880, 3 kg = 2820. */
+const BASE_HALF_KG = 470;
+
+/** Basic customisation (labour + material). Flat, added once, hidden inside the shown price. */
+const CUSTOMISATION_FEE = 300;
+
+export const sizeLabel = (s: Size) => (s === 0.5 ? "\u00BD kg" : `${s} kg`);
 
 export type Tone = "light" | "cream" | "lavender";
 
 export type Product = {
   id: string;
   name: string;
-  /** Path inside /public. Defaults to /images/products/<id>.jpg */
+  /** Path inside /public */
   image: string;
   rating: number;
   reviews: number;
-  /** Price in rupees */
+  /** Half-kg price for weighted cakes, fixed price for everything else (rupees) */
   price: number;
-  /** Delivery chip text */
-  delivery: string;
   eggless?: boolean;
+  /** Shows the 1/2, 1, 2, 3 kg selector and scales the price */
+  weighted?: boolean;
+  /** Adds the basic customisation fee into the displayed price */
+  customisable?: boolean;
+};
+
+/** The one formula that decides what the customer sees. */
+export const priceFor = (p: Product, size: Size = 0.5) => {
+  const base = p.weighted ? Math.round((p.price * size) / 0.5) : p.price;
+  return base + (p.customisable ? CUSTOMISATION_FEE : 0);
 };
 
 export type Subsection = {
@@ -36,6 +61,8 @@ export type Subsection = {
   title: string;
   /** Optional cover photo (used by the occasions grid), path inside /public */
   image?: string;
+  /** Shows the "customise to your needs" card at the end of the grid */
+  customise?: boolean;
   products: Product[];
 };
 
@@ -55,46 +82,54 @@ export type CatalogSection = {
 const slug = (s: string) =>
   s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
-/** `image` is optional; pass a full path to override the default. */
-const p = (
-  id: string,
-  name: string,
-  price: number,
-  rating: number,
-  reviews: number,
-  delivery: string,
-  image: string = `/images/products/${id}.jpg`
-): Product => ({
-  id,
-  name,
-  image,
-  price,
-  rating,
-  reviews,
-  delivery,
-  eggless: true,
-});
+type Opts = { weighted?: boolean; customisable?: boolean };
 
-/** Bestseller photos live in /public/images/bestsellers/<id>.jpg */
-const bs = (
-  id: string,
-  name: string,
-  price: number,
-  rating: number,
-  reviews: number,
-  delivery: string
-) => p(id, name, price, rating, reviews, delivery, `/images/bestsellers/${id}.jpg`);
+/**
+ * Makes a product builder for one image folder.
+ * The photo is always /images/<folder>/<id>.jpg
+ */
+const inFolder =
+  (folder: string, defaults: Opts = {}) =>
+  (
+    id: string,
+    name: string,
+    price: number,
+    rating: number,
+    reviews: number,
+    opts: Opts = {}
+  ): Product => ({
+    id,
+    name,
+    image: `/images/${folder}/${id}.jpg`,
+    price,
+    rating,
+    reviews,
+    eggless: true,
+    ...defaults,
+    ...opts,
+  });
 
-/** Custom cake photos live in /public/images/custom-cake/<n>.jpg */
+const cake = inFolder("products/cakes", { weighted: true });
+const bento = inFolder("products/bento");
+const dessert = inFolder("products/desserts");
+const savoury = inFolder("products/savouries");
+const occasionCake = inFolder("products/occasions", { weighted: true, customisable: true });
+const occasionBento = inFolder("products/occasions");
+const themeCake = inFolder("products/themes", { weighted: true, customisable: true });
+const bs = inFolder("bestsellers"); // bestseller photos
+
+/** Custom cake photos are numbered: /images/custom-cake/1.jpg, 2.jpg, 3.jpg */
 const cc = (
   id: string,
   name: string,
   price: number,
   rating: number,
   reviews: number,
-  delivery: string,
   n: number
-) => p(id, name, price, rating, reviews, delivery, `/images/custom-cake/${n}.jpg`);
+): Product => ({
+  ...inFolder("custom-cake")(id, name, price, rating, reviews),
+  image: `/images/custom-cake/${n}.jpg`,
+});
 
 /* ---------- Ids you can link to ---------- */
 export const SECTION_IDS = {
@@ -108,7 +143,7 @@ export const SECTION_IDS = {
   customCake: "custom-cake",
 } as const;
 
-/* ---------- Dummy data (replace with your own products) ---------- */
+/* ---------- Data ---------- */
 // Order matches the OccasionGrid component
 const OCCASIONS = ["Birthday", "Anniversary", "Congratulations", "Baby Shower", "Festive", "Just Because"];
 // Order matches the ThemePicker component
@@ -123,12 +158,12 @@ export const CATALOG: CatalogSection[] = [
     subtitle: "Soft, fresh and 100% eggless, made to order.",
     tone: "light",
     products: [
-      p("classic-vanilla-cake", "Classic Vanilla Cake", 699, 4.8, 210, "Today"),
-      p("dark-chocolate-ganache-cake", "Dark Chocolate Ganache Cake", 899, 4.9, 188, "Midnight"),
-      p("red-velvet-cake", "Red Velvet Cream Cheese Cake", 949, 4.9, 156, "Today"),
-      p("butterscotch-crunch-cake", "Butterscotch Crunch Cake", 799, 4.7, 134, "Today"),
-      p("fresh-fruit-cake", "Fresh Fruit Cake", 899, 4.8, 97, "2 hrs"),
-      p("pineapple-cream-cake", "Pineapple Cream Cake", 749, 4.7, 122, "Today"),
+      cake("classic-vanilla-cake", "Classic Vanilla Cake", BASE_HALF_KG, 4.8, 210),
+      cake("dark-chocolate-ganache-cake", "Dark Chocolate Ganache Cake", BASE_HALF_KG, 4.9, 188),
+      cake("red-velvet-cake", "Red Velvet Cream Cheese Cake", BASE_HALF_KG, 4.9, 156),
+      cake("butterscotch-crunch-cake", "Butterscotch Crunch Cake", BASE_HALF_KG, 4.7, 134),
+      cake("fresh-fruit-cake", "Fresh Fruit Cake", BASE_HALF_KG, 4.8, 97),
+      cake("pineapple-cream-cake", "Pineapple Cream Cake", BASE_HALF_KG, 4.7, 122),
     ],
   },
   {
@@ -139,10 +174,10 @@ export const CATALOG: CatalogSection[] = [
     subtitle: "Little cakes for big feelings. Perfect for one or two.",
     tone: "cream",
     products: [
-      p("mini-bento-vanilla", "Vanilla Message Bento", 399, 4.8, 176, "2 hrs"),
-      p("mini-bento-chocolate", "Chocolate Heart Bento", 449, 4.9, 203, "Today"),
-      p("mini-bento-red-velvet", "Red Velvet Bento", 449, 4.8, 119, "Today"),
-      p("mini-bento-butterscotch", "Butterscotch Bento", 429, 4.7, 88, "Midnight"),
+      bento("mini-bento-vanilla", "Vanilla Message Bento", 399, 4.8, 176),
+      bento("mini-bento-chocolate", "Chocolate Heart Bento", 449, 4.9, 203),
+      bento("mini-bento-red-velvet", "Red Velvet Bento", 449, 4.8, 119),
+      bento("mini-bento-butterscotch", "Butterscotch Bento", 429, 4.7, 88),
     ],
   },
   {
@@ -153,12 +188,12 @@ export const CATALOG: CatalogSection[] = [
     subtitle: "Brownies, cupcakes, jars and cookies for every craving.",
     tone: "light",
     products: [
-      p("classic-fudge-brownie", "Classic Fudge Brownies (6)", 549, 4.9, 264, "Today"),
-      p("walnut-brownie", "Walnut Brownies (6)", 599, 4.8, 141, "Today"),
-      p("oreo-cake-jar", "Oreo Cake Jar", 229, 4.7, 167, "2 hrs"),
-      p("belgian-chocolate-cupcakes", "Belgian Chocolate Cupcakes (4)", 399, 4.8, 129, "Today"),
-      p("choco-chip-cookies", "Choco Chip Cookies Box", 449, 4.9, 215, "Midnight"),
-      p("blueberry-cheesecake-jar", "Blueberry Cheesecake Jar", 259, 4.8, 92, "Today"),
+      dessert("classic-fudge-brownie", "Classic Fudge Brownies (6)", 549, 4.9, 264),
+      // dessert("walnut-brownie", "Walnut Brownies (6)", 599, 4.8, 141),
+      dessert("oreo-cake-jar", "Oreo Cake Jar", 229, 4.7, 167),
+      dessert("belgian-chocolate-cupcakes", "Belgian Chocolate Cupcakes (4)", 399, 4.8, 129),
+      dessert("choco-chip-cookies", "Choco Chip Cookies Box", 449, 4.9, 215),
+      // dessert("blueberry-cheesecake-jar", "Blueberry Cheesecake Jar", 259, 4.8, 92),
     ],
   },
   {
@@ -166,13 +201,14 @@ export const CATALOG: CatalogSection[] = [
     navLabel: "Savouries",
     eyebrow: "Fresh from the oven",
     title: "Savouries",
-    subtitle: "Breads, puffs and quiches, baked the same day.",
+    subtitle: "Puffs, kulchas and buns, baked the same day.",
     tone: "cream",
     products: [
-      p("garlic-bread-loaf", "Garlic Bread Loaf", 249, 4.7, 83, "Today"),
-      p("paneer-puffs-box", "Paneer Puffs (4)", 299, 4.8, 74, "2 hrs"),
-      p("mushroom-quiche", "Mushroom Quiche", 449, 4.8, 51, "Today"),
-      p("cheese-croissant", "Cheese Croissants (3)", 349, 4.9, 66, "Today"),
+      savoury("potato-puff", "Potato Puff", 349, 4.9, 64),
+      savoury("paneer-puff", "Paneer Puff", 299, 4.8, 76),
+      savoury("chowmein-puff", "Chowmein Puff", 399, 4.7, 91),
+      savoury("paneer-kulcha", "Paneer Kulcha", 449, 4.8, 58),
+      savoury("korean-cheese-bun", "Korean Cheese Bun", 349, 4.9, 48),
     ],
   },
   {
@@ -189,10 +225,10 @@ export const CATALOG: CatalogSection[] = [
         title: name,
         // /images/birthday.jpg, /images/babyshower.jpg, /images/justbecause.jpg ...
         image: `/images/${s.replace(/-/g, "")}.jpg`,
+        customise: true,
         products: [
-          p(`${s}-cake`, `${name} Cake`, 899, 4.9, 120 + i * 13, "Today"),
-          p(`${s}-bento`, `${name} Bento Cake`, 499, 4.8, 90 + i * 11, "2 hrs"),
-          p(`${s}-gift-box`, `${name} Gift Box`, 1299, 4.8, 60 + i * 7, "Midnight"),
+          occasionCake(`${s}-cake`, `${name} Cake`, BASE_HALF_KG, 4.9, 120 + i * 13),
+          occasionBento(`${s}-bento`, `${name} Bento Cake`, 499, 4.8, 90 + i * 11),
         ],
       };
     }),
@@ -202,16 +238,16 @@ export const CATALOG: CatalogSection[] = [
     navLabel: "Themes",
     eyebrow: "Made for their world",
     title: "Pick a theme, make their day",
-    subtitle: "Theme cakes and treats for every little fan.",
+    subtitle: "Theme cakes for every little fan.",
     tone: "cream",
     subsections: THEMES.map((name, i) => {
       const s = slug(name);
       return {
         id: `themes-${s}`,
         title: name,
+        customise: true,
         products: [
-          p(`${s}-theme-cake`, `${name} Theme Cake`, 1499, 4.9, 80 + i * 9, "Today"),
-          p(`${s}-cupcake-set`, `${name} Cupcake Set`, 899, 4.8, 55 + i * 6, "Today"),
+          themeCake(`${s}-theme-cake`, `${name} Theme Cake`, BASE_HALF_KG, 4.9, 80 + i * 9),
         ],
       };
     }),
@@ -228,40 +264,40 @@ export const CATALOG: CatalogSection[] = [
         id: "bestsellers-cakes",
         title: "Cakes",
         products: [
-          bs("velvet-berry-celebration-cake", "Velvet Berry Celebration Cake", 1249, 4.9, 164, "Today"),
-          bs("classic-chocolate-truffle", "Classic Chocolate Truffle", 849, 4.8, 312, "Midnight"),
-          bs("blush-garden-floral-cake", "Blush Garden Floral Cake", 1499, 5.0, 87, "Today"),
-          bs("minimal-cherry-bento-cake", "Minimal Cherry Bento Cake", 499, 4.9, 206, "2 hrs"),
+          bs("velvet-berry-celebration-cake", "Velvet Berry Celebration Cake", BASE_HALF_KG, 4.9, 164, { weighted: true }),
+          bs("classic-chocolate-truffle", "Classic Chocolate Truffle", BASE_HALF_KG, 4.8, 312, { weighted: true }),
+          bs("blush-garden-floral-cake", "Blush Garden Floral Cake", BASE_HALF_KG, 5.0, 87, { weighted: true, customisable: true }),
+          bs("minimal-cherry-bento-cake", "Minimal Cherry Bento Cake", 499, 4.9, 206),
         ],
       },
       {
         id: "bestsellers-bento",
         title: "Bento",
         products: [
-          bs("vanilla-heart-bento", "Vanilla Heart Bento", 449, 4.8, 142, "2 hrs"),
-          bs("lotus-biscoff-bento", "Lotus Biscoff Bento", 549, 4.9, 98, "Today"),
-          bs("choco-drip-bento", "Choco Drip Bento", 479, 4.7, 175, "Today"),
-          bs("strawberry-cream-bento", "Strawberry Cream Bento", 499, 4.8, 120, "Midnight"),
+          bs("vanilla-heart-bento", "Vanilla Heart Bento", 449, 4.8, 142),
+          bs("lotus-biscoff-bento", "Lotus Biscoff Bento", 549, 4.9, 98),
+          bs("choco-drip-bento", "Choco Drip Bento", 479, 4.7, 175),
+          bs("strawberry-cream-bento", "Strawberry Cream Bento", 499, 4.8, 120),
         ],
       },
       {
         id: "bestsellers-desserts",
         title: "Desserts",
         products: [
-          bs("brownie", "Fudge Brownie Box of 6", 599, 4.9, 260, "Today"),
-          bs("cakejars", "Tiramisu Cake Jar", 249, 4.8, 134, "2 hrs"),
-          bs("cupcake", "Red Velvet Cupcakes (4)", 399, 4.7, 189, "Today"),
-          bs("cookies", "Nutella Cookie Box", 549, 4.9, 221, "Midnight"),
+          bs("brownie", "Fudge Brownie Box of 6", 599, 4.9, 260),
+          bs("cakejars", "Tiramisu Cake Jar", 249, 4.8, 134),
+          bs("cupcake", "Red Velvet Cupcakes (4)", 399, 4.7, 189),
+          bs("cookies", "Nutella Cookie Box", 549, 4.9, 221),
         ],
       },
       {
         id: "bestsellers-savouries",
         title: "Savouries",
         products: [
-          bs("paneer-puff", "Paneer Puff", 299, 4.8, 76, "Today"),
-          bs("potato-puff", "Potato Puff", 349, 4.9, 64, "Today"),
-          bs("chowmein-puff", "Chowmein Puff", 399, 4.7, 91, "2 hrs"),
-          bs("paneer-kulcha", "Paneer Kulcha", 449, 4.8, 58, "Today"),
+          bs("paneer-puff", "Paneer Puff", 299, 4.8, 76),
+          bs("potato-puff", "Potato Puff", 349, 4.9, 64),
+          bs("chowmein-puff", "Chowmein Puff", 399, 4.7, 91),
+          bs("paneer-kulcha", "Paneer Kulcha", 449, 4.8, 58),
         ],
       },
     ],
@@ -274,9 +310,9 @@ export const CATALOG: CatalogSection[] = [
     subtitle: "Upload your reference and tell us your occasion. We\u2019ll get back with a quote within 2 hours.",
     tone: "cream",
     products: [
-      cc("custom-photo-cake", "Photo Cake", 1299, 4.9, 72, "2 days", 1),
-      cc("custom-theme-cake", "Custom Theme Cake", 1999, 5.0, 64, "2 days", 2),
-      cc("custom-tiered-cake", "Tiered Celebration Cake", 3499, 4.9, 41, "3 days", 3),
+      cc("custom-photo-cake", "Photo Cake", 1299, 4.9, 72, 1),
+      cc("custom-theme-cake", "Custom Theme Cake", 1999, 5.0, 64, 2),
+      cc("custom-tiered-cake", "Tiered Celebration Cake", 3499, 4.9, 41, 3),
     ],
   },
 ];
@@ -286,6 +322,7 @@ export const CATALOG: CatalogSection[] = [
 /** Link to any section or subsection on the products page, e.g. sectionHref("bestsellers-bento") */
 export const sectionHref = (id: string) => `${PRODUCTS_PATH}#${id}`;
 
+// Later sections win, so a product that is also a bestseller links to the Bestsellers block.
 const PRODUCT_ANCHORS: Record<string, string> = {};
 for (const s of CATALOG) {
   s.products?.forEach((pr) => (PRODUCT_ANCHORS[pr.id] = s.id));
@@ -300,10 +337,10 @@ export const productHref = (productId: string) => {
   return anchor ? sectionHref(anchor) : PRODUCTS_PATH;
 };
 
-/** Opens a WhatsApp chat with the product name pre-filled. */
-export const whatsappLink = (what: string) =>
+/** Opens a WhatsApp chat with the message pre-filled. */
+export const whatsappLink = (what: string, intro = "I\u2019d like to order") =>
   `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-    `Hi JustMelts, I\u2019d like to order: ${what}`
+    `Hi JustMelts, ${intro}: ${what}`
   )}`;
 
 export const INDEX_ITEMS = CATALOG.map((s) => ({ id: s.id, label: s.navLabel }));

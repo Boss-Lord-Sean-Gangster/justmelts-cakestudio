@@ -3,6 +3,12 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { motion, useScroll, useSpring } from "framer-motion";
 import { StoryOverlays } from "./StoryOverlays";
+import {
+  MOBILE_BREAKPOINT,
+  MOBILE_FILL,
+  DESKTOP_SCALE,
+  mobileDrawRect,
+} from "./frameLayout";
 
 interface CakeCanvasScrollerProps {
   onOpenReserve?: () => void;
@@ -65,7 +71,7 @@ export const CakeCanvasScroller: React.FC<CakeCanvasScrollerProps> = ({
     mass: 0.2,
   });
 
-  // Helper to draw an image onto the canvas with HiDPI support and aspect ratio containment
+  // Helper to draw an image onto the canvas with HiDPI support
   const drawImgToCanvas = useCallback(
     (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, img: HTMLImageElement) => {
       const dpr = window.devicePixelRatio || 1;
@@ -84,29 +90,35 @@ export const CakeCanvasScroller: React.FC<CakeCanvasScrollerProps> = ({
       ctx.fillStyle = "#ECEDE7";
       ctx.fillRect(0, 0, displayWidth, displayHeight);
 
-      // Image is 1280x720 (16:9)
-      const imgWidth = img.naturalWidth || 1280;
-      const imgHeight = img.naturalHeight || 720;
-      const imgAspect = imgWidth / imgHeight;
-      const canvasAspect = displayWidth / displayHeight;
+      const isMobile = displayWidth < MOBILE_BREAKPOINT;
 
       let drawW: number;
       let drawH: number;
+      let drawX: number;
+      let drawY: number;
 
-      // Responsive scaling with comfortable negative space
-      const isMobile = displayWidth < 768;
-      const scaleFactor = isMobile ? 1.02 : 0.92;
-
-      if (canvasAspect > imgAspect) {
-        drawH = displayHeight * scaleFactor;
-        drawW = drawH * imgAspect;
+      if (isMobile) {
+        // MOBILE: size the frame by screen HEIGHT (not width) so the empty bands
+        // at the top and bottom disappear. The sides get cropped, centred on the cake.
+        // Tune with MOBILE_FILL in frameLayout.ts
+        ({ drawW, drawH, drawX, drawY } = mobileDrawRect(displayWidth, displayHeight));
       } else {
-        drawW = displayWidth * scaleFactor;
-        drawH = drawW / imgAspect;
-      }
+        // DESKTOP: unchanged. Frame is contained with comfortable negative space.
+        const imgWidth = img.naturalWidth || 1280;
+        const imgHeight = img.naturalHeight || 720;
+        const imgAspect = imgWidth / imgHeight;
+        const canvasAspect = displayWidth / displayHeight;
 
-      const drawX = (displayWidth - drawW) / 2;
-      const drawY = (displayHeight - drawH) / 2;
+        if (canvasAspect > imgAspect) {
+          drawH = displayHeight * DESKTOP_SCALE;
+          drawW = drawH * imgAspect;
+        } else {
+          drawW = displayWidth * DESKTOP_SCALE;
+          drawH = drawW / imgAspect;
+        }
+        drawX = (displayWidth - drawW) / 2;
+        drawY = (displayHeight - drawH) / 2;
+      }
 
       ctx.drawImage(img, drawX, drawY, drawW, drawH);
       ctx.restore();
@@ -231,7 +243,8 @@ export const CakeCanvasScroller: React.FC<CakeCanvasScrollerProps> = ({
           />
         </div>
 
-        {/* Instant Hero Image Layer: Visible on 0ms initial load before first paint */}
+        {/* Instant Hero Image Layer: Visible on 0ms initial load before first paint.
+            On mobile it is sized by height too, so there is no jump when the canvas takes over. */}
         <div
           className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-300 ${
             initialFrameLoaded ? "opacity-0" : "opacity-100"
@@ -241,7 +254,10 @@ export const CakeCanvasScroller: React.FC<CakeCanvasScrollerProps> = ({
           <img
             src={frameSrc(0)}
             alt="JustMelts Signature Cake"
-            className="w-full h-full object-contain max-w-[1280px] max-h-[720px]"
+            className="w-full h-full object-contain max-w-[1280px] max-h-[720px] max-md:!h-[var(--mobile-fill)] max-md:!w-auto max-md:!max-w-none max-md:!max-h-none"
+            style={
+              { "--mobile-fill": `${MOBILE_FILL * 100}vh` } as React.CSSProperties
+            }
             fetchPriority="high"
             decoding="async"
           />
