@@ -49,7 +49,7 @@ const DEFAULT_COLUMNS: FooterColumn[] = [
       l("Delivery Areas", "/delivery-areas"),
       l("FAQs", "/faqs"),
       l("Contact Us", "/contact"),
-      l("Custom Cakes", "/custom-cakes"),
+      l("Custom Cakes", "/products#custom-cake"),
     ],
   },
   {
@@ -157,7 +157,11 @@ export default function Footer({
             ))}
           </ul> */}
 
-          <p className={styles.fssai}>{fssai}</p>
+          {/* Only show a licence number once a real one is supplied.
+              The old default was the placeholder "XXXXXXXXXXXXXX", which was shown publicly. */}
+          {fssai && !/X{4,}/i.test(fssai) && (
+            <p className={styles.fssai}>{fssai}</p>
+          )}
 
           <p className={styles.copy}>
             &copy; {new Date().getFullYear()} {copyright}

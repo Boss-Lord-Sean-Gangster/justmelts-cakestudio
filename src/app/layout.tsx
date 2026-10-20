@@ -1,63 +1,54 @@
 
 import type { Metadata } from "next";
 import "./globals.css";
+import JsonLd from "@/components/JsonLd";
+import { SITE_URL, BRAND, OG_IMAGE, siteJsonLd } from "@/lib/seo";
 
-const siteUrl = "https://justmelts.in";
+const siteUrl = SITE_URL;
+const HOME_TITLE =
+  "Just Melts | Eggless Custom Cakes & Bento Cakes in Noida, Delhi NCR";
+const HOME_DESCRIPTION =
+  "Just Melts is an eggless cake studio in Noida. Order custom cakes, bento cakes, brownies, cupcakes and savouries, delivered across Delhi NCR. Order on WhatsApp.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
 
   title: {
-    default: "Just Melts | Custom Cakes & Eggless Bakery",
-    template: "%s | Just Melts",
+    default: HOME_TITLE,
+    template: `%s | ${BRAND}`,
   },
 
-  description:
-    "Order handcrafted eggless cakes, bento cakes, brownies, cupcakes and custom celebration cakes from Just Melts. Explore our menu and order your favourites online.",
+  description: HOME_DESCRIPTION,
 
-  applicationName: "Just Melts",
+  applicationName: BRAND,
 
-  keywords: [
-    "Just Melts",
-    "eggless cakes",
-    "custom cakes",
-    "birthday cakes",
-    "bento cakes",
-    "engagement cakes",
-    "designer cakes",
-    "brownies",
-    "cupcakes",
-    "home bakery",
-  ],
-
-  alternates: {
-    canonical: "/",
-  },
+  // NOTE: no site-wide `alternates.canonical` here. A canonical set in the
+  // root layout is inherited by every page that doesn't override it, which
+  // made /products declare the homepage as its canonical. Each page now sets
+  // its own canonical.
 
   openGraph: {
-    title: "Just Melts | Custom Cakes & Eggless Bakery",
-    description:
-      "Celebrate every occasion with handcrafted cakes, bento cakes and freshly baked treats from Just Melts.",
-    url: siteUrl,
-    siteName: "Just Melts",
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
+    url: "/",
+    siteName: BRAND,
     locale: "en_IN",
     type: "website",
     images: [
       {
-        url: "/images/og-image.jpg",
+        url: OG_IMAGE,
         width: 1200,
         height: 630,
-        alt: "Handcrafted celebration cakes by Just Melts",
+        alt: "Just Melts logo beside a red velvet cake",
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "Just Melts | Custom Cakes & Eggless Bakery",
-    description:
-      "Handcrafted cakes and freshly baked treats for your special moments.",
-    images: ["/images/og-image.jpg"],
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
+    images: [OG_IMAGE],
   },
 
   robots: {
@@ -80,13 +71,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en-IN">
+      <meta name="google-site-verification" content="Z991BosWg9C7kCWEsCheC07RsnuAqJMIHY7NxFHxESU" />
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
+        <JsonLd data={siteJsonLd()} />
       </head>
 
       <body className="bg-[#F7F7F5] text-[#1C1917] font-sans antialiased selection:bg-[#F6ECEA] selection:text-[#1C1917] min-h-screen">

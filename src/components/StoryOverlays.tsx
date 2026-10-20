@@ -335,19 +335,24 @@ export const StoryOverlays: React.FC<StoryOverlaysProps> = ({
             </span>
           </div>
 
-          {/* Brand Headline */}
-          {/* <h1 className="font-serif text-5xl sm:text-7xl md:text-8xl lg:text-9xl tracking-tight leading-[0.98] mb-3 font-normal text-charcoal">
-            JUSTMELTS
-          </h1> */}
-
-           <Image
-                src={"/images/justmelts-logo-straight.png"}
-                alt="JustMelts"
-                width={550}
-                height={117}
-                // className={styles.logoImg}
-              />
-          
+          {/* Brand Headline.
+              The logo is the visible headline. The visually-hidden text mirrors the
+              visible eyebrow above ("100% Eggless Bakery • Delhi NCR") and the Noida
+              kitchen stated in the Our Story section, so the H1 has real text for
+              search engines and screen readers. */}
+          <h1 className="m-0">
+            <Image
+              src={"/images/justmelts-logo-straight.png"}
+              alt="Just Melts"
+              width={550}
+              height={117}
+              priority
+            />
+            <span className="sr-only">
+              {" "}
+              – 100% eggless cake studio in Noida, delivering across Delhi NCR
+            </span>
+          </h1>
 
           {/* Brand Subheadline */}
           <p className="font-serif italic text-xl sm:text-3xl md:text-4xl text-charcoal/85 mb-4 font-light tracking-wide">
